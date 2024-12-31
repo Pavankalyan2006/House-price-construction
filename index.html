@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>House Cost Estimator</title>
+    <style>
+        body {
+            background-color: #f7fafc;
+            font-family: 'Arial', sans-serif;
+        }
+        .header {
+            background-color: #1a202c;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 0 0 20px 20px;
+        }
+        .header i {
+            margin-right: 8px;
+        }
+        .header .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .input-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            transition: transform 0.3s ease;
+        }
+        .input-card:hover {
+            transform: translateY(-5px);
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+        .submit-btn {
+            background-color: #4A90E2;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #357ABD;
+        }
+        .response-container {
+            background-color: #fff;
+            padding: 16px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+
+    <header class="header w-full flex justify-between items-center p-4">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-home"></i>
+            <span class="header-title">House Cost Estimator</span>
+        </div>
+    </header>
+
+    <main class="flex flex-col items-center justify-center flex-grow w-full max-w-md px-4">
+        <div class="input-card">
+            <input 
+                id="area" 
+                type="number" 
+                placeholder="Enter the estimated area of the house (in sq.ft.)" 
+                class="input-field"
+                min="1"
+            >
+            <input 
+                id="rooms" 
+                type="text" 
+                placeholder="Enter the number of rooms (e.g., 3BHK)" 
+                class="input-field"
+            >
+            <input 
+                id="location" 
+                type="text" 
+                placeholder="Enter the location (e.g., Hyderabad)" 
+                class="input-field"
+            >
+            <input 
+                id="pin_code" 
+                type="text" 
+                placeholder="Enter the pin code (e.g., 500080)" 
+                class="input-field"
+            >
+            <select id="material_quality" class="input-field">
+                <option value="" disabled selected>Select Material Quality</option>
+                <option value="basic">Basic</option>
+                <option value="mid_range">Mid-Range</option>
+                <option value="luxury">Luxury</option>
+            </select>
+            <select id="foundation_type" class="input-field">
+                <option value="" disabled selected>Select Foundation Type</option>
+                <option value="standard">Standard</option>
+                <option value="deep">Deep</option>
+            </select>
+            <input 
+                id="building_plan" 
+                type="text" 
+                placeholder="Enter Building Plan Complexity (Simple/Complex)" 
+                class="input-field"
+            >
+            <textarea 
+                id="amenities" 
+                class="input-field" 
+                placeholder="Enter Amenities (e.g., modular kitchen, built-in wardrobes, etc.)"
+            ></textarea>
+        </div>
+
+        <button 
+            id="submit-button" 
+            class="submit-btn mt-4" 
+            onclick="sendInputs()">
+            Submit All
+        </button>
+
+        <div id="response" class="response-container mt-6 hidden"></div>
+    </main>
+
+    <footer class="footer w-full p-4">
+        <span>This House Cost Estimator is created by Prem Shandilya</span>
+    </footer>
+
+    <script>
+        async function sendInputs() {
+            const area = document.getElementById('area').value;
+            const rooms = document.getElementById('rooms').value;
+            const location = document.getElementById('location').value;
+            const pin_code = document.getElementById('pin_code').value;
+            const material_quality = document.getElementById('material_quality').value;
+            const foundation_type = document.getElementById('foundation_type').value;
+            const building_plan = document.getElementById('building_plan').value;
+            const amenities = document.getElementById('amenities').value;
+
+            if (!area || !rooms || !location || !pin_code || !material_quality || !foundation_type || !building_plan) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            const responseElement = document.getElementById('response');
+            responseElement.innerHTML = "Processing...";
+            responseElement.classList.remove('hidden');
+
+            const res = await fetch('/get_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    inputs: [
+                        `Area: ${area} sq ft`,
+                        `Rooms: ${rooms}`,
+                        `Location: ${location}`,
+                        `Pin Code: ${pin_code}`,
+                        `Material Quality: ${material_quality}`,
+                        `Foundation Type: ${foundation_type}`,
+                        `Building Plan: ${building_plan}`,
+                        `Amenities: ${amenities}`
+                    ]
+                })
+            });
+
+            const data = await res.json();
+            if (data.response) {
+                responseElement.innerHTML = `<p class="text-lg">${data.response}</p>`;
+            } else {
+                responseElement.innerHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
